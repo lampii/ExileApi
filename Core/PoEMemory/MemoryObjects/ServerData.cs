@@ -42,17 +42,26 @@ namespace ExileCore.PoEMemory.MemoryObjects
                 if (Address == 0) return null;
                 var startPtr = ServerDataStruct.NearestPlayers.First;
                 var endPtr = ServerDataStruct.NearestPlayers.Last;
-                startPtr += 16; //Don't ask me why. Just skipping first 2
-
+                startPtr += 0; //Don't ask me why. Just skipping first 2
+                Console.WriteLine("Base = " + startPtr);
                 //Sometimes wrong offsets and read 10000000+ objects
-                if (startPtr < Address || (endPtr - startPtr) / 16 > 50)
+                if ( (endPtr - startPtr) / 8 > 60)
                     return result;
 
                 result.Clear();
 
-                for (var addr = startPtr; addr < endPtr; addr += 16) //16 because we are reading each second pointer (pointer vectors)
+                for (var addr = startPtr; addr >= ServerDataStruct.NearestPlayers.First && addr < endPtr; addr += 8) //16 because we are reading each second pointer (pointer vectors)
                 {
-                    result.Add(ReadObject<Player>(addr));
+                    if(addr != 0)
+                    {
+                        byte[] ob = M.ReadMem(addr, 8);
+                        Console.WriteLine(Convert.ToString(BitConverter.ToInt32(ob, 0), 16) + " player\n");
+                        var Player = ReadObject<Player>(addr);
+
+                        if(!String.IsNullOrEmpty(Player.PlayerName))
+                            result.Add(ReadObject<Player>(addr));
+
+                    }
                 }
 
                 return result;

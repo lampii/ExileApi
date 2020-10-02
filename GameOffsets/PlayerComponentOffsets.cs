@@ -14,7 +14,7 @@ namespace GameOffsets
         [FieldOffset(0x180)] public int Strength;
         [FieldOffset(0x184)] public int Dexterity;
         [FieldOffset(0x188)] public int Intelligence;
-        [FieldOffset(0x1AA)] public byte Level;
+        [FieldOffset(0x1AA)] public byte Level; //1AA
         [FieldOffset(0x1AC)] public byte PantheonMinor;
         [FieldOffset(0x1AD)] public byte PantheonMajor;
         [FieldOffset(0x16C)] public byte AllocatedLootId;                
