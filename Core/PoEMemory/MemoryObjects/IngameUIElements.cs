@@ -38,7 +38,27 @@ namespace ExileCore.PoEMemory.MemoryObjects
             _DelveWindow ?? (_DelveWindow = GetObject<SubterraneanChart>(IngameUIElementsStruct.DelveWindow));
         public SkillBarElement SkillBar => GetObject<SkillBarElement>(IngameUIElementsStruct.SkillBar);
         public SkillBarElement HiddenSkillBar => GetObject<SkillBarElement>(IngameUIElementsStruct.HiddenSkillBar);
-        public PoeChatElement ChatBox => GetObject<PoeChatElement>(M.Read<long>(Address + 0x3F8, 0x2C8, 0xE20, 0x350));
+
+        // Structure of Chatbox is
+        //Root > [x] ChatBox Root Panel > [0] Toggle Panel     > [0] Channel Bar Panel
+        //                                                     > [1] Hide ChatBox Button Panel
+        //                              > [1] History Panel    > [0] Feature Placeholder
+        //                                                     > [1] Feature Placeholder
+        //                                                     > [2] Chat Body Panel  > [0] Feature Placeholder
+        //                                                                            > [1] Chat History Panel
+        //                                                     > [3] Chat Scroll Panel
+        //                              > [2] Target Channel Panel
+        //                              > [3] Text Input Panel
+        //                              > [4] Autocomplete Panel
+        //
+        // For backward compability, ChatBox points to the nested Chat Body Panel instead of the root panel. 
+
+        // This offset points to the chat box panel that is a direct child of root.
+        public PoeChatElement ChatBoxRoot => GetObject<PoeChatElement>(IngameUIElementsStruct.ChatPanel);
+
+        // This offset points to the chat body panel that is a grandchild of the previous element.
+        // Chatbox.Parent.Parent.Parent is equivalent to ChatBoxRoot.
+        public PoeChatElement ChatBox => GetObject<PoeChatElement>(ChatBoxRoot.GetChildAtIndex(1).GetChildAtIndex(2).GetChildAtIndex(1).Address);
         public IList<string> ChatMessages => ChatBox.Children.Select(x => x.Text).ToList();
         public Element QuestTracker => GetObject<Element>(IngameUIElementsStruct.QuestTracker);
         public QuestRewardWindow QuestRewardWindow => GetObject<QuestRewardWindow>(IngameUIElementsStruct.QuestRewardWindow);
@@ -56,7 +76,7 @@ namespace ExileCore.PoEMemory.MemoryObjects
         public GemLvlUpPanel GemLvlUpPanel => GetObject<GemLvlUpPanel>(IngameUIElementsStruct.GemLvlUpPanel);
         public Element InvitesPanel => GetObject<Element>(IngameUIElementsStruct.InvitesPanel);
         public ItemOnGroundTooltip ItemOnGroundTooltip => GetObject<ItemOnGroundTooltip>(IngameUIElementsStruct.ItemOnGroundTooltip);
-        public MapStashTabElement MapStashTab => ReadObject<MapStashTabElement>(IngameUIElementsStruct.MapTabWindowStartPtr + 0xAA0);
+        public MapStashTabElement MapStashTab => ReadObject<MapStashTabElement>(IngameUIElementsStruct.MapTabWindowStartPtr);
         public Element Sulphit => GetObject<Element>(IngameUIElementsStruct.Map).GetChildAtIndex(0);
         public Cursor Cursor => _cursor ?? (_cursor = GetObject<Cursor>(IngameUIElementsStruct.Mouse));
         public Element BetrayalWindow => _BetrayalWindow ?? (_BetrayalWindow = GetObject<Element>(IngameUIElementsStruct.BetrayalWindow));
